@@ -66,5 +66,22 @@ public class TestStringCalculator {
         sc.add("//;\n1;-22;1000;5;-9");
     }
 
+    @Test
+    public void testMulLenDelims(){
+        assertEquals(6, sc.add("//[***]\n1***2***3"));
+        assertEquals(6, sc.add("//[+++++]\n1+++++2+++++3"));
+    }
+    @Test
+    public void testMultipleDelims(){
+        assertEquals(6, sc.add("//[*][%]\n1*2%3"));
+        assertEquals(15, sc.add("//[*][%][+]\n1*2%3+9"));
+    }
+
+    @Test
+    public void testMUltiLenMultipleDelims(){
+        assertEquals(6, sc.add("//[***][%%%]\n1***2%%%3"));
+        assertEquals(15, sc.add("//[+++][%][,,]\n1+++2,,3,,9"));
+    }
+
 
 }

@@ -2,9 +2,13 @@ package com.incubyte.hiring;
 
 import com.incubyte.hiring.exception.NegativesNumbersException;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
 public class StringCalculator {
 
-    String deliminator = ",";
+    String deliminators = ",";
 
     public int add(String numbers) throws NegativesNumbersException{
 
@@ -16,7 +20,7 @@ public class StringCalculator {
 
             if (numbers.startsWith("//")) {
                 //Contains custom deliminator
-                deliminator = getDeliminator(numbers);
+                deliminators = getDeliminator(numbers);
                 int lastNewLineIndex = numbers.lastIndexOf("\n");
                 numbers = numbers.substring(lastNewLineIndex + 1);
             } else {
@@ -24,14 +28,17 @@ public class StringCalculator {
                 numbers = removeNewLineChars(numbers);
             }
 
-            String[] nums = numbers.split(deliminator);
-
-            //what if “1,\n”
+            StringTokenizer st = new StringTokenizer(numbers, deliminators);
+            List<String> nums = new ArrayList<String>();
+            while (st.hasMoreTokens()) {
+                nums.add(st.nextToken());
+            }
+            //what if “1,\n”  ---   Not mentioned in the document how it should be handled.
 
             String negativeNums = "";
-            for (int i = 0; i < nums.length; i++) {
-                if(numberLessThan1000(nums[i])/*Number bigger than 1000 should be ignored*/){
-                    int num = Integer.parseInt(nums[i]);
+            for (int i = 0; i < nums.size(); i++) {
+                if(numberLessThan1000(nums.get(i))/*Number bigger than 1000 should be ignored*/){
+                    int num = Integer.parseInt(nums.get(i));
                     sum = sum + num;
                     if(num < 0){
                         negativeNums = negativeNums.concat(num + " ");
@@ -52,15 +59,22 @@ public class StringCalculator {
     }
 
     private String removeNewLineChars(String numbers) {
-        return numbers.replaceAll("\\n", deliminator);
+        return numbers.replaceAll("\\n", deliminators);
     }
 
     private String getDeliminator(String numbers) {
-        String deliminator = ",";
+        //Assuming numbers are not allowed as deliminators.
+        String deliminators = ",";
         if (numbers.startsWith("//")) {
-            int index = numbers.lastIndexOf("/") + 1;
-            deliminator = "" + numbers.charAt(index);
+            String delimPart = numbers.substring(0, numbers.lastIndexOf("\n"))
+                    .replace("//","")
+                    .replace("[","").replace("]", "1");
+            deliminators = "";
+            for(String delim : delimPart.split("1")){
+                deliminators+=delim;
+            }
+
         }
-        return deliminator;
+        return deliminators;
     }
 }
