@@ -1,45 +1,63 @@
 package com.incubyte.hiring;
 
-import com.sun.xml.internal.ws.util.StringUtils;
+import com.incubyte.hiring.exception.NegativesNumbersException;
 
 public class StringCalculator {
 
     String deliminator = ",";
-    public int add(String numbers){
+
+    public int add(String numbers) throws NegativesNumbersException{
 
         int sum = 0;
 
-        if(numbers == null || numbers.equalsIgnoreCase("")){
+        if (numbers == null || numbers.equalsIgnoreCase("")) {
             sum = 0;
-        }
-        else{
+        } else {
 
-            if(numbers.startsWith("//")){
+            if (numbers.startsWith("//")) {
+                //Contains custom deliminator
                 deliminator = getDeliminator(numbers);
                 int lastNewLineIndex = numbers.lastIndexOf("\n");
                 numbers = numbers.substring(lastNewLineIndex + 1);
-            }
-            else{
-                numbers = numbers.replaceAll("\\n", deliminator);
+            } else {
+                //Default deliminator
+                numbers = removeNewLineChars(numbers);
             }
 
             String[] nums = numbers.split(deliminator);
-            if(nums.length == 1){
-                sum = Integer.parseInt(numbers);
-            }
+
             //what if “1,\n”
-            else {
-                for (int i = 0; i < nums.length; i++) {
-                    sum += Integer.parseInt(nums[i]);
+
+            String negativeNums = "";
+            for (int i = 0; i < nums.length; i++) {
+                if(numberLessThan1000(nums[i])/*Number bigger than 1000 should be ignored*/){
+                    int num = Integer.parseInt(nums[i]);
+                    sum = sum + num;
+                    if(num < 0){
+                        negativeNums = negativeNums.concat(num + " ");
+                    }
                 }
             }
+
+            if(negativeNums.length() > 0){
+                throw new NegativesNumbersException("negatives not allowed:".concat(negativeNums));
+            }
+
         }
         return sum;
     }
 
+    private boolean numberLessThan1000(String num) {
+        return Integer.parseInt(num) <= 1000;
+    }
+
+    private String removeNewLineChars(String numbers) {
+        return numbers.replaceAll("\\n", deliminator);
+    }
+
     private String getDeliminator(String numbers) {
         String deliminator = ",";
-        if(numbers.startsWith("//")){
+        if (numbers.startsWith("//")) {
             int index = numbers.lastIndexOf("/") + 1;
             deliminator = "" + numbers.charAt(index);
         }
